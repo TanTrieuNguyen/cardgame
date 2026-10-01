@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Game - Made By Tan Trieu Nguyen</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 1. SPLASH SCREEN (MÀN HÌNH ĐEN) -->
+  <div id="splash-screen" class="splash-overlay active">
+    <div class="splash-content">
+      <div class="splash-suits">♠ ♥ ♦ ♣</div>
+      <h1 class="splash-title">Made By Tan Trieu Nguyen</h1>
+      <p class="splash-subtitle">Đang tải trải nghiệm game bài...</p>
+    </div>
+  </div>
+
+  <!-- 2. GAME SELECTION SCREEN (CHỌN TRÒ CHƠI) -->
+  <div id="game-select-screen" class="screen">
+    <header class="hub-header">
+      <div class="hub-logo">
+        <span class="suit red">♥</span>
+        <span class="suit black">♠</span>
+        <h1>CARD GAME</h1>
+        <span class="suit red">♦</span>
+        <span class="suit black">♣</span>
+      </div>
+      <p class="author-tag">Made By Tan Trieu Nguyen</p>
+    </header>
+
+    <div class="game-select-container">
+      <h2>CHỌN TRÒ CHƠI BẠN MUỐN THAM GIA</h2>
+
+      <div class="game-cards-grid">
+        <!-- Blackjack Game Card -->
+        <div class="game-card card-bj" id="card-select-bj">
+          <div class="card-badge">1 - 6 Người Chơi</div>
+          <div class="card-icon">🃏</div>
+          <h3>Blackjack (Xì Dách)</h3>
+          <p>Hỗ trợ chơi 1 mình hoặc phòng 6 người.</p>
+          <button class="btn btn-gold">Chơi Blackjack</button>
+        </div>
+
+        <!-- UNO Game Card (Uses Card Back Image) -->
+        <div class="game-card card-uno" id="card-select-uno">
+          <div class="card-badge uno-badge">2 - 8 Người Chơi (Multiplayer)</div>
+          <div class="card-thumb">
+            <img src="/assets/uno/card_back.jpeg" alt="UNO Card Back" class="hub-card-back-img">
+          </div>
+          <h3>Game Bài UNO (108 Lá Chuẩn Nguyên Bản)</h3>
+          <p>Bộ 108 lá chuẩn!</p>
+          <button class="btn btn-uno">Chơi UNO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. BLACKJACK LOBBY SCREEN -->
+  <div id="bj-lobby-screen" class="screen">
+    <div class="lobby-card">
+      <button class="btn-back" id="btn-back-hub-bj">← Chọn Game Khác</button>
+      <div class="logo">
+        <span class="suit red">♥</span>
+        <span class="suit black">♠</span>
+        <h1>BLACKJACK</h1>
+        <span class="suit red">♦</span>
+        <span class="suit black">♣</span>
+      </div>
+      <p class="subtitle">Sòng Bài Trực Tuyến 1-6 Người Chơi</p>
+
+      <div class="form-group">
+        <label for="bj-player-name">Tên hiển thị của bạn:</label>
+        <input type="text" id="bj-player-name" placeholder="Ví dụ: Thần Bài " maxlength="15">
+      </div>
+
+      <div class="lobby-actions">
+        <div class="mode-select-buttons">
+          <button id="btn-create-solo" class="btn btn-solo">
+            <span class="icon">🎮</span> Chơi 1 Mình (Solo)
+          </button>
+          <button id="btn-create-bj-room" class="btn btn-primary">
+            <span class="icon">👥</span> Tạo Phòng 6 Người
+          </button>
+        </div>
+        <div class="divider"><span>HOẶC THAM GIA PHÒNG</span></div>
+        <div class="join-group">
+          <input type="text" id="bj-room-code-input" placeholder="Mã Phòng (ví dụ: A8K2)" maxlength="6">
+          <button id="btn-join-bj-room" class="btn btn-secondary">Vào Phòng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. UNO LOBBY SCREEN (MAX 8 PLAYERS, NO SOLO) -->
+  <div id="uno-lobby-screen" class="screen">
+    <div class="lobby-card uno-theme">
+      <button class="btn-back" id="btn-back-hub-uno">← Chọn Game Khác</button>
+      <div class="logo">
+        <h1 class="uno-title">UNO MULTIPLAYER</h1>
+      </div>
+      <p class="subtitle">UNO Online 108 Lá (Tối Đa 8 Người)</p>
+
+      <div class="form-group">
+        <label for="uno-player-name">Tên hiển thị của bạn:</label>
+        <input type="text" id="uno-player-name" placeholder="Ví dụ: Vua UNO" maxlength="15">
+      </div>
+
+      <div class="lobby-actions">
+        <button id="btn-create-uno-room" class="btn btn-uno btn-full">
+          <span class="icon">🎴</span> Tạo Phòng UNO (8 Người)
+        </button>
+        <div class="divider"><span>HOẶC THAM GIA PHÒNG</span></div>
+        <div class="join-group">
+          <input type="text" id="uno-room-code-input" placeholder="Mã Phòng (ví dụ: U9K1)" maxlength="6">
+          <button id="btn-join-uno-room" class="btn btn-secondary">Vào Phòng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. BLACKJACK GAME SCREEN -->
+  <div id="bj-game-screen" class="screen">
+    <header class="game-header">
+      <div class="header-left">
+        <div class="room-tag">
+          MÃ PHÒNG: <strong id="bj-display-room-code">----</strong>
+          <button id="btn-copy-bj-code" title="Sao chép link">📋</button>
+        </div>
+        <div id="bj-status-badge" class="badge">Đang chờ...</div>
+      </div>
+      <div class="header-center">
+        <div id="bj-timer-box" class="timer-box hidden">
+          <span>Thời gian:</span> <span id="bj-timer-count">15</span>s
+          <div class="timer-bar"><div id="bj-timer-progress"></div></div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btn-sound" class="btn-icon">🔊</button>
+        <button id="btn-chat-toggle" class="btn-icon">💬</button>
+        <button id="btn-leave-room" class="btn btn-danger-sm">Thoát</button>
+      </div>
+    </header>
+
+    <main class="casino-table">
+      <div class="dealer-area">
+        <div class="dealer-label">DEALER (NHÀ CÁI)</div>
+        <div id="dealer-score-badge" class="score-badge hidden">0</div>
+        <div id="dealer-cards" class="cards-container"></div>
+      </div>
+      <div class="table-center">
+        <div class="felt-logo">
+          <h2>BLACKJACK 3:2</h2>
+          <p>Made By Tan Trieu Nguyen</p>
+        </div>
+      </div>
+      <div class="seats-container">
+        <!-- 6 Seats -->
+        <div class="seat" data-seat="0">
+          <div class="seat-badge">Ghế 1</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+        <div class="seat" data-seat="1">
+          <div class="seat-badge">Ghế 2</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+        <div class="seat" data-seat="2">
+          <div class="seat-badge">Ghế 3</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+        <div class="seat" data-seat="3">
+          <div class="seat-badge">Ghế 4</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+        <div class="seat" data-seat="4">
+          <div class="seat-badge">Ghế 5</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+        <div class="seat" data-seat="5">
+          <div class="seat-badge">Ghế 6</div>
+          <div class="player-info"><span class="player-name">Trống</span><span class="player-chips">🪙 0</span></div>
+          <div class="cards-container"></div><div class="hand-score hidden">0</div><div class="bet-spot"><span class="bet-amount"></span></div><div class="seat-status"></div><div class="floating-popups"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="game-footer">
+      <div id="betting-controls" class="controls-panel hidden">
+        <span class="panel-label">ĐẶT CƯỢC:</span>
+        <div class="chips-picker">
+          <button class="chip chip-10" data-val="10">10</button>
+          <button class="chip chip-50" data-val="50">50</button>
+          <button class="chip chip-100" data-val="100">100</button>
+          <button class="chip chip-250" data-val="250">250</button>
+          <button class="chip chip-500" data-val="500">500</button>
+          <button class="chip chip-half" id="btn-chip-half">½ HALF</button>
+          <button class="chip chip-allin" id="btn-chip-allin">🔥 ALL IN</button>
+        </div>
+        <div class="bet-action-group">
+          <div class="bet-info-wrapper">
+            <span id="current-selected-bet">Cược: 0 🪙</span>
+            <button id="btn-minus-bet" class="btn-minus hidden">➖ Hủy cược</button>
+          </div>
+          <button id="btn-confirm-bet" class="btn btn-gold">Xác Nhận Cược</button>
+        </div>
+      </div>
+      <div id="action-controls" class="controls-panel hidden">
+        <button id="btn-hit" class="btn btn-action btn-hit">➕ RÚT (HIT)</button>
+        <button id="btn-stand" class="btn btn-action btn-stand">✋ DỪNG (STAND)</button>
+        <button id="btn-double" class="btn btn-action btn-double">✖️2 GẤP ĐÔI</button>
+        <button id="btn-surrender" class="btn btn-action btn-surrender">🏳️ ĐẦU HÀNG</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 6. UNO GAME SCREEN (AUTHENTIC 3D ARENA LOOK LIKE THE ATTACHED IMAGES) -->
+  <div id="uno-game-screen" class="screen">
+    <header class="game-header uno-header">
+      <div class="header-left">
+        <div class="room-tag">
+          MÃ PHÒNG: <strong id="uno-display-room-code">----</strong>
+          <button id="btn-copy-uno-code" title="Sao chép mã phòng">📋</button>
+        </div>
+        <div id="uno-status-badge" class="badge">Đang chờ người chơi...</div>
+      </div>
+      <div class="header-right">
+        <button id="btn-start-uno" class="btn btn-uno-sm">Bắt Đầu Ván</button>
+        <button id="btn-leave-uno" class="btn btn-danger-sm">Thoát</button>
+      </div>
+    </header>
+
+    <main class="uno-arena-table">
+      <!-- Background Swirl Ring & Watermark Logo -->
+      <div class="uno-swirl-ring"></div>
+      <div class="uno-watermark-logo">UNO</div>
+
+      <!-- 8 Player Seats in Oval 3D Ring -->
+      <div class="uno-seats-ring">
+        <!-- Seat 0 (Bottom Left) -->
+        <div class="uno-seat-box seat-pos-0" data-uno-seat="0">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Dusty</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">🤖</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="0">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 1 (Mid Left) -->
+        <div class="uno-seat-box seat-pos-1" data-uno-seat="1">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Dusty</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">🤖</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="1">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 2 (Top Left) -->
+        <div class="uno-seat-box seat-pos-2" data-uno-seat="2">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Luna</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">👾</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="2">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 3 (Top Center) -->
+        <div class="uno-seat-box seat-pos-3" data-uno-seat="3">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Luna</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">👾</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="3">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 4 (Top Right) -->
+        <div class="uno-seat-box seat-pos-4" data-uno-seat="4">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Pudding</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">👽</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="4">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 5 (Mid Right) -->
+        <div class="uno-seat-box seat-pos-5" data-uno-seat="5">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">AI Pudding</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">👽</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="5">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 6 (Bottom Right) -->
+        <div class="uno-seat-box seat-pos-6" data-uno-seat="6">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">UNOLover</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">🎮</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="6">🚨 BẮT UNO</button>
+        </div>
+
+        <!-- Seat 7 (Bottom Center) -->
+        <div class="uno-seat-box seat-pos-7" data-uno-seat="7">
+          <div class="seat-avatar-wrapper">
+            <div class="seat-name-pill"><span class="uno-pname">UNOLover</span></div>
+            <div class="seat-avatar-box">
+              <span class="avatar-icon">⚡</span>
+            </div>
+            <div class="seat-card-badge"><span class="uno-pcount">0</span></div>
+          </div>
+          <div class="uno-cards-preview"></div>
+          <button class="btn-call-uno hidden" data-target="7">🚨 BẮT UNO</button>
+        </div>
+      </div>
+
+      <!-- Center Board Area -->
+      <div class="uno-center-board">
+        <div class="color-indicator" id="uno-current-color">MÀU HỆN TẠI: RED</div>
+        <div id="uno-stack-badge" class="stack-badge hidden">🔥 DỒN RÚT: +0 LÁ!</div>
+        <div class="piles-wrapper">
+          <!-- 3D Draw Pile Stack -->
+          <div class="uno-pile draw-pile" id="btn-draw-uno-card" title="Rút bài">
+            <img src="/assets/uno/card_back.jpeg" alt="Draw Pile" class="pile-img">
+            <div class="pile-overlay-text">
+              <span>RÚT BÀI</span>
+              <small id="uno-deck-count">(0)</small>
+            </div>
+          </div>
+          <!-- 3D Discard Pile -->
+          <div class="uno-pile discard-pile" id="uno-discard-card"></div>
+        </div>
+        <div class="direction-indicator" id="uno-direction">Chiều: 🔄 Thuận</div>
+      </div>
+
+      <!-- Big 3D Round UNO Button in Bottom Right (Like screenshot) -->
+      <div class="uno-3d-button-container">
+        <button id="btn-declare-uno" class="btn-uno-3d-round">
+          <span>UNO</span>
+        </button>
+      </div>
+
+      <!-- Local Player Hand Cards at Bottom -->
+      <div class="uno-player-hand-container">
+        <div class="hand-header-bar">
+          <span class="hand-label">BÀI CỦA BẠN:</span>
+        </div>
+        <div id="uno-my-cards" class="uno-cards-flex"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- WILD COLOR PICKER MODAL -->
+  <div id="uno-color-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2>CHỌN MÀU ĐỔI BÀI 🌈</h2>
+      <p>Chọn 1 trong 4 màu dưới đây:</p>
+      <div class="color-picker-grid">
+        <button class="btn-color color-red" data-color="red">ĐỎ (RED)</button>
+        <button class="btn-color color-blue" data-color="blue">XANH DƯƠNG</button>
+        <button class="btn-color color-green" data-color="green">XANH LÁ</button>
+        <button class="btn-color color-yellow" data-color="yellow">VÀNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARED CHAT DRAWER -->
+  <div id="chat-drawer" class="chat-drawer">
+    <div class="chat-header">
+      <h3>💬 Lịch Sử & Chat</h3>
+      <button id="btn-close-chat">✕</button>
+    </div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <div class="chat-input-box">
+      <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." maxlength="100">
+      <button id="btn-send-chat">Gửi</button>
+    </div>
+  </div>
+
+  <!-- REBUY / BANKRUPT MODAL -->
+  <div id="rebuy-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-icon">💸</div>
+      <h2>BẠN ĐÃ HẾT TIỀN!</h2>
+      <p>Đừng lo lắng! Sòng bài vừa hỗ trợ cho bạn <strong>200 🪙 </strong> cứu trợ để tiếp tục cuộc chơi.</p>
+      <button id="btn-claim-rebuy" class="btn btn-gold">🎁 Nhận 200 và làm lại từ đầu</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

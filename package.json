@@ -1,0 +1,25 @@
+{
+  "name": "card-game",
+  "version": "1.0.0",
+  "description": "Multi-game Card Platform featuring Blackjack and UNO (Made By Tan Trieu Nguyen)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "card-game",
+    "blackjack",
+    "uno",
+    "multiplayer",
+    "socket.io",
+    "render"
+  ],
+  "author": "Tan Trieu Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}
