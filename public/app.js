@@ -312,9 +312,44 @@ const btnClaimRebuy = document.getElementById('btn-claim-rebuy');
 
 let activeTotalChips = 2000;
 
+// AUTO MOBILE DEVICE DETECTION & ORIENTATION BANNER
+function initMobileDeviceDetection() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  if (isMobile) {
+    document.body.classList.add('device-mobile');
+  }
+
+  const rotateBanner = document.getElementById('mobile-rotate-banner');
+  const btnCloseBanner = document.getElementById('btn-close-rotate-banner');
+
+  let bannerDismissed = false;
+
+  if (btnCloseBanner && rotateBanner) {
+    btnCloseBanner.addEventListener('click', () => {
+      rotateBanner.classList.add('hidden');
+      bannerDismissed = true;
+    });
+  }
+
+  const checkOrientation = () => {
+    if (bannerDismissed || !rotateBanner) return;
+    const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth <= 768;
+    if (isPortrait && (currentGameType === 'blackjack' || currentGameType === 'uno')) {
+      rotateBanner.classList.remove('hidden');
+    } else {
+      rotateBanner.classList.add('hidden');
+    }
+  };
+
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', checkOrientation);
+  socket.on('room_joined', () => setTimeout(checkOrientation, 350));
+}
+
 // 1. SPLASH SCREEN SEQUENCE
 window.addEventListener('DOMContentLoaded', () => {
   splashScreen.classList.add('active');
+  initMobileDeviceDetection();
   const savedName = localStorage.getItem('bj_player_name');
   if (savedName) {
     inputBjName.value = savedName;

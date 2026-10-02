@@ -808,13 +808,206 @@ body {
   100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
 }
 
+/* MOBILE ROTATE ORIENTATION BANNER */
+.mobile-rotate-banner {
+  position: fixed;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ffaa00 0%, #ff5500 100%);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  border: 1px solid #ffffff;
+  animation: bannerPulse 1s infinite alternate;
+  width: 90%;
+  max-width: 400px;
+  justify-content: space-between;
+}
+
+#btn-close-rotate-banner {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@keyframes bannerPulse {
+  0% { transform: translateX(-50%) scale(0.98); }
+  100% { transform: translateX(-50%) scale(1.02); }
+}
+
 .hidden { display: none !important; }
 
-/* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN FOR MOBILE PHONES */
 @media (max-width: 900px) {
-  .game-cards-grid { grid-template-columns: 1fr; }
+  .game-cards-grid { grid-template-columns: 1fr; gap: 15px; }
   .uno-seats-ring { grid-template-columns: repeat(4, 1fr); }
   .seats-container { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
-  .uno-3d-button-container { right: 10px; bottom: 100px; }
+  .uno-3d-button-container { right: 10px; bottom: 95px; }
   .btn-uno-3d-round { width: 70px; height: 70px; font-size: 1.1rem; }
+}
+
+@media (max-width: 768px) {
+  /* Fix Game Hub Overflow on Mobile Portrait */
+  #game-select-screen {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 15px 10px 40px 10px;
+  }
+  .hub-header { margin-bottom: 15px; }
+  .hub-logo h1 { font-size: 2.2rem; }
+  .game-select-container { width: 100%; padding-bottom: 30px; }
+
+  /* Fix Lobby Screen Overflow & Suits Clipping */
+  #bj-lobby-screen, #uno-lobby-screen {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 15px 10px;
+  }
+  .lobby-card {
+    width: 95%;
+    max-width: 450px;
+    padding: 25px 15px;
+    margin: auto;
+  }
+  .logo {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+  }
+  .logo h1 { font-size: 1.8rem; }
+  .logo .suit { font-size: 1.3rem; }
+
+  /* Fix Game Header on Mobile */
+  .game-header {
+    height: auto;
+    min-height: 48px;
+    padding: 5px 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .room-tag { font-size: 0.75rem; padding: 4px 8px; }
+  .badge { font-size: 0.7rem; padding: 3px 8px; }
+  .timer-box { padding: 4px 10px; font-size: 0.75rem; }
+  .timer-bar { width: 45px; height: 5px; }
+
+  /* Fix Blackjack Casino Table & Seats on Mobile */
+  .casino-table {
+    margin: 5px;
+    padding: 10px 6px;
+    border-width: 6px;
+    border-radius: 30px;
+  }
+  .table-center { display: none; }
+  .seats-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .seat {
+    min-height: 120px;
+    padding: 6px 3px;
+  }
+  .player-name {
+    max-width: 65px;
+    font-size: 0.75rem;
+  }
+  .player-chips { font-size: 0.7rem; }
+  .hand-score { top: 40px; font-size: 0.7rem; padding: 0 4px; }
+  .cards-container { height: 55px; }
+  .playing-card {
+    width: 38px;
+    height: 54px;
+    font-size: 0.75rem;
+    margin-left: -16px;
+    padding: 2px;
+  }
+  .card-suit-big { font-size: 1rem; }
+  .seat-badge { font-size: 0.65rem; }
+  .seat-status { font-size: 0.65rem; padding: 1px 5px; }
+
+  /* Fix Chips Picker & Betting Controls on Mobile (Touch Scrollable) */
+  .game-footer {
+    height: auto;
+    min-height: 65px;
+    padding: 6px 10px;
+  }
+  .controls-panel {
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+  .chips-picker {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+    padding: 4px 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .chips-picker::-webkit-scrollbar { display: none; }
+  .chip {
+    min-width: 38px;
+    height: 38px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+  .bet-action-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .btn-action {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    flex: 1 1 auto;
+  }
+
+  /* Fix UNO Table & Seats on Mobile */
+  .uno-arena-table {
+    margin: 5px;
+    padding: 8px;
+    border-radius: 30px;
+  }
+  .uno-swirl-ring { width: 95%; height: 85%; }
+  .uno-watermark-logo { font-size: 4.5rem; opacity: 0.1; }
+  .uno-seats-ring {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .seat-avatar-box { width: 34px; height: 34px; }
+  .avatar-icon { font-size: 1.1rem; }
+  .seat-name-pill { padding: 2px 6px; }
+  .uno-pname {
+    font-size: 0.7rem;
+    max-width: 48px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seat-card-badge { padding: 1px 4px; }
+  .uno-pcount { font-size: 0.7rem; }
+  .opp-card-back { width: 20px; height: 30px; margin-left: -10px; }
+  .uno-pile { width: 70px; height: 105px; }
+  .piles-wrapper { gap: 15px; }
+  .color-indicator { font-size: 0.8rem; padding: 3px 12px; }
+  .uno-3d-button-container { bottom: 90px; right: 10px; }
+  .btn-uno-3d-round { width: 62px; height: 62px; font-size: 1.05rem; border-width: 4px; }
+  .uno-img-card { width: 50px; height: 75px; }
+  .uno-player-hand-container { padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  .mode-select-buttons { flex-direction: column; gap: 8px; }
+  .join-group { flex-direction: column; gap: 8px; }
+  .join-group input, .join-group button { width: 100%; }
 }
