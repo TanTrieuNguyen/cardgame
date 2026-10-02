@@ -137,9 +137,47 @@ let lastTopDiscardId = null;
 let lastTurnDir = 1;
 let lastPendingDraw = 0;
 let lastTurnSeat = -1;
+let lastUnoStatus = null;
 let latestUnoState = null;
 let unoBgmInterval = null;
 let unoBgmGain = null;
+
+// CELEBRATION CONFETTI PARTICLES
+function triggerConfetti() {
+  try {
+    const colors = ['#ff5555', '#5555ff', '#55aa55', '#ffaa00', '#ffd700', '#ff0055'];
+    const confettiCount = 50;
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    container.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; overflow:hidden;';
+
+    for (let i = 0; i < confettiCount; i++) {
+      const p = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const left = Math.random() * 100;
+      const size = Math.random() * 8 + 6;
+      const animDuration = Math.random() * 2 + 1.5;
+      const delay = Math.random() * 0.5;
+
+      p.style.cssText = `
+        position: absolute;
+        top: -20px;
+        left: ${left}vw;
+        width: ${size}px;
+        height: ${size * (Math.random() > 0.5 ? 1 : 2.5)}px;
+        background: ${color};
+        opacity: 0.9;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        transform: rotate(${Math.random() * 360}deg);
+        animation: confettiFall ${animDuration}s linear ${delay}s forwards;
+      `;
+      container.appendChild(p);
+    }
+
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 4000);
+  } catch (e) { console.error('Confetti error:', e); }
+}
 
 // FLY CARD ANIMATION FROM SEAT/HAND TO DISCARD PILE
 function flyUnoCard(fromElem, toElem, imgSrc) {
@@ -816,4 +854,57 @@ function renderUnoState(state) {
       unoMyCardsContainer.appendChild(cardImg);
     });
   }
+
+  // ROUND END VICTORY CELEBRATION
+  const unoVictoryModal = document.getElementById('uno-victory-modal');
+  const unoWinnerAvatar = document.getElementById('uno-winner-avatar');
+  const unoWinnerName = document.getElementById('uno-winner-name');
+  const unoWinnerDetail = document.getElementById('uno-winner-detail');
+
+  if (state.status === 'ROUND_END') {
+    stopUnoBGM();
+    if (lastUnoStatus !== 'ROUND_END') {
+      const winnerIdx = (state.winner !== null && state.winner !== undefined) ? state.winner : 0;
+      const winnerSeat = state.seats[winnerIdx];
+      const winnerNameStr = winnerSeat ? winnerSeat.name : 'Người chơi';
+      const avatarIcon = AVATAR_ICONS[winnerIdx % AVATAR_ICONS.length];
+
+      if (unoWinnerAvatar) unoWinnerAvatar.textContent = avatarIcon;
+      if (unoWinnerName) unoWinnerName.textContent = (winnerIdx === mySeatIndex) ? `⭐ BẠN (${winnerNameStr})` : winnerNameStr;
+      if (unoWinnerDetail) unoWinnerDetail.textContent = (winnerIdx === mySeatIndex) ? '🏆 Bạn đã xuất sắc đánh hết bài và giành chiến thắng!' : 'Đã xuất sắc đánh hết tất cả các lá bài và giành chiến thắng!';
+
+      if (unoVictoryModal) unoVictoryModal.classList.remove('hidden');
+      playSound('win');
+      triggerConfetti();
+    }
+
+    if (state.winner !== null && state.winner !== undefined) {
+      const winnerSeatElem = document.querySelector(`.uno-seat-box[data-uno-seat="${state.winner}"]`);
+      if (winnerSeatElem) winnerSeatElem.classList.add('winner-glow');
+    }
+  } else {
+    if (unoVictoryModal) unoVictoryModal.classList.add('hidden');
+    document.querySelectorAll('.uno-seat-box').forEach(el => el.classList.remove('winner-glow'));
+  }
+
+  lastUnoStatus = state.status;
+}
+
+// VICTORY MODAL ACTION BUTTONS
+const btnRestartUnoModal = document.getElementById('btn-restart-uno-modal');
+const btnCloseVictoryModal = document.getElementById('btn-close-victory-modal');
+
+if (btnRestartUnoModal) {
+  btnRestartUnoModal.addEventListener('click', () => {
+    const unoVictoryModal = document.getElementById('uno-victory-modal');
+    if (unoVictoryModal) unoVictoryModal.classList.add('hidden');
+    socket.emit('start_uno_game');
+  });
+}
+
+if (btnCloseVictoryModal) {
+  btnCloseVictoryModal.addEventListener('click', () => {
+    const unoVictoryModal = document.getElementById('uno-victory-modal');
+    if (unoVictoryModal) unoVictoryModal.classList.add('hidden');
+  });
 }
