@@ -729,7 +729,7 @@ io.on('connection', (socket) => {
     if (seat && (seat.chips <= 0 || seat.pendingRebuy)) {
       seat.chips = 200;
       seat.pendingRebuy = false;
-      sendSystemMessage(userRoomCode, `🎁 ${seat.name} đã nhận 200 phỉnh và làm lại từ đầu!`);
+      sendSystemMessage(userRoomCode, `🎁 ${seat.name} đã nhận 200 và làm lại từ đầu!`);
       broadcastRoomState(userRoomCode);
     }
   });

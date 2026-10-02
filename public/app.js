@@ -136,6 +136,129 @@ const unoStackBadge = document.getElementById('uno-stack-badge');
 let lastTopDiscardId = null;
 let lastTurnDir = 1;
 let lastPendingDraw = 0;
+let lastTurnSeat = -1;
+let latestUnoState = null;
+let unoBgmInterval = null;
+let unoBgmGain = null;
+
+// FLY CARD ANIMATION FROM SEAT/HAND TO DISCARD PILE
+function flyUnoCard(fromElem, toElem, imgSrc) {
+  if (!fromElem || !toElem) return;
+  try {
+    const fromRect = fromElem.getBoundingClientRect();
+    const toRect = toElem.getBoundingClientRect();
+
+    const flyCard = document.createElement('img');
+    flyCard.src = imgSrc || '/assets/uno/card_back.jpeg';
+    flyCard.className = 'uno-flying-card';
+
+    const startX = fromRect.left + fromRect.width / 2 - 32;
+    const startY = fromRect.top + fromRect.height / 2 - 48;
+    const endX = toRect.left + toRect.width / 2 - 32;
+    const endY = toRect.top + toRect.height / 2 - 48;
+
+    flyCard.style.cssText = `
+      position: fixed;
+      top: ${startY}px;
+      left: ${startX}px;
+      width: 64px;
+      height: 94px;
+      border-radius: 8px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      z-index: 9999;
+      pointer-events: none;
+      transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.45s;
+      transform: scale(0.85) rotate(${Math.floor(Math.random() * 20 - 10)}deg);
+    `;
+
+    document.body.appendChild(flyCard);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+        flyCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1) rotate(${Math.floor(Math.random() * 12 - 6)}deg)`;
+      });
+    });
+
+    setTimeout(() => { flyCard.remove(); }, 460);
+  } catch (e) { console.error('Fly animation error:', e); }
+}
+
+// AMBIENT BACKGROUND MUSIC FOR UNO
+function startUnoBGM() {
+  if (!soundEnabled || unoBgmInterval) return;
+  try {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    unoBgmGain = audioCtx.createGain();
+    unoBgmGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+    unoBgmGain.connect(audioCtx.destination);
+
+    const chords = [
+      [261.63, 329.63, 392.00, 493.88],
+      [220.00, 261.63, 329.63, 392.00],
+      [174.61, 220.00, 261.63, 349.23],
+      [196.00, 246.94, 293.66, 349.23]
+    ];
+    let chordIdx = 0;
+
+    const playChord = () => {
+      if (!soundEnabled || currentGameType !== 'uno') { stopUnoBGM(); return; }
+      const notes = chords[chordIdx % chords.length];
+      chordIdx++;
+      const now = audioCtx.currentTime;
+
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const noteGain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.08);
+        noteGain.gain.setValueAtTime(0.005, now + i * 0.08);
+        noteGain.gain.linearRampToValueAtTime(0.035, now + i * 0.08 + 0.25);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+
+        osc.connect(noteGain);
+        noteGain.connect(unoBgmGain);
+        osc.start(now + i * 0.08);
+        osc.stop(now + 1.9);
+      });
+    };
+
+    playChord();
+    unoBgmInterval = setInterval(playChord, 2000);
+  } catch (e) { console.error('BGM error:', e); }
+}
+
+function stopUnoBGM() {
+  if (unoBgmInterval) {
+    clearInterval(unoBgmInterval);
+    unoBgmInterval = null;
+  }
+}
+
+// HOTKEYS FOR UNO (Phím U: Hô UNO, Phím C: Bắt UNO)
+window.addEventListener('keydown', (e) => {
+  if (currentGameType !== 'uno') return;
+  const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+  if (activeTag === 'input' || activeTag === 'textarea') return;
+
+  const key = e.key.toLowerCase();
+  if (key === 'u') {
+    socket.emit('declare_uno');
+    playSound('turn');
+  } else if (key === 'c') {
+    if (latestUnoState && latestUnoState.seats) {
+      const targetIdx = latestUnoState.seats.findIndex((seat, idx) => {
+        return idx !== mySeatIndex && seat && seat.cardCount === 1 && !seat.hasCalledUno;
+      });
+      if (targetIdx !== -1) {
+        socket.emit('call_uno', { targetSeatIndex: targetIdx });
+        playSound('bust');
+      }
+    }
+  }
+});
 
 // Shared DOM
 const btnSound = document.getElementById('btn-sound');
@@ -235,6 +358,8 @@ btnDeclareUno.addEventListener('click', () => {
 btnSound.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   btnSound.textContent = soundEnabled ? '🔊' : '🔇';
+  if (!soundEnabled) stopUnoBGM();
+  else if (currentGameType === 'uno' && latestUnoState && latestUnoState.status === 'PLAYING') startUnoBGM();
 });
 
 function copyRoomCode() {
@@ -507,10 +632,11 @@ function renderSeats(seats, currentTurnSeat, roomStatus) {
 
       if (roomStatus === 'ROUND_END' && seatData.result) {
         if (seatData.result === 'WIN' || seatData.result === 'BLACKJACK') {
-          statusElem.classList.add('win'); statusElem.textContent = `THẮNG (+${seatData.winAmount})`;
+          const netWin = Math.max(0, seatData.winAmount - seatData.bet);
+          statusElem.classList.add('win'); statusElem.textContent = `THẮNG (+${netWin})`;
           if (idx === mySeatIndex && lastRenderedRoundStatus !== 'ROUND_END') {
             playSound('win');
-            triggerFloatingText(popupElem, `+${seatData.winAmount} 🪙`, seatData.result === 'BLACKJACK' ? 'blackjack' : 'win');
+            triggerFloatingText(popupElem, `+${netWin} 🪙`, seatData.result === 'BLACKJACK' ? 'blackjack' : 'win');
           }
         } else if (seatData.result === 'LOSE') {
           statusElem.classList.add('lose'); statusElem.textContent = 'THUA';
@@ -545,6 +671,9 @@ function createBjCardElement(card) {
 
 // 8. RENDER UNO GAME STATE (MATCHING ATTACHED SCREENSHOTS & STACKING ANIMATIONS)
 function renderUnoState(state) {
+  latestUnoState = state;
+  if (state.status === 'PLAYING') startUnoBGM();
+
   unoStatusBadge.textContent = state.status === 'WAITING' ? 'Đang chờ (2-8 người)' : state.status === 'PLAYING' ? 'Đang Chơi UNO' : 'Kết Thúc Ván';
   unoCurrentColor.textContent = `MÀU HIỆN TẠI: ${(state.currentColor || 'RED').toUpperCase()}`;
   unoCurrentColor.style.background = state.currentColor === 'blue' ? '#5555ff' : state.currentColor === 'green' ? '#55aa55' : state.currentColor === 'yellow' ? '#ffaa00' : '#ff5555';
@@ -572,7 +701,7 @@ function renderUnoState(state) {
     if (pendingDraw > 0) playSound('reverse');
   }
 
-  // Render Discard Top Card Image & Play Animation
+  // Render Discard Top Card Image & Play Animation (Card flying from seat to pile)
   unoDiscardCardContainer.innerHTML = '';
   if (state.topDiscardCard) {
     const img = document.createElement('img');
@@ -582,6 +711,17 @@ function renderUnoState(state) {
 
     if (lastTopDiscardId && lastTopDiscardId !== state.topDiscardCard.id) {
       img.classList.add('animate-play');
+      
+      let fromElem = null;
+      if (lastTurnSeat === mySeatIndex) {
+        fromElem = unoMyCardsContainer;
+      } else if (lastTurnSeat >= 0) {
+        fromElem = document.querySelector(`.uno-seat-box[data-uno-seat="${lastTurnSeat}"]`);
+      }
+      if (fromElem) {
+        flyUnoCard(fromElem, unoDiscardCardContainer, state.topDiscardCard.image);
+      }
+
       if (pendingDraw > lastPendingDraw) {
         playSound('stack');
       } else if (state.turnDirection === lastTurnDir) {
@@ -592,6 +732,7 @@ function renderUnoState(state) {
     lastTopDiscardId = state.topDiscardCard.id;
   }
 
+  lastTurnSeat = state.currentTurnSeat;
   lastTurnDir = state.turnDirection;
   lastPendingDraw = pendingDraw;
 
